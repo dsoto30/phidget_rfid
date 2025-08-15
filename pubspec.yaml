@@ -1,6 +1,6 @@
 name: phidget_rfid
 description: "A cross-platform Flutter/Dart package for interacting with Phidgets RFID readers using dart:ffi."
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/dsoto30/phidget_rfid
 
 environment:

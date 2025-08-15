@@ -1,11 +1,7 @@
-# Changelog
+## 1.0.1
 
-All notable changes to this project will be documented in this file.
+* Updated `README.md` with improved documentation and examples.
 
-## [1.0.0] - 2025-08-15
+## 1.0.0
 
-### Added
-
--   Initial release of the `phidget_rfid` package.
--   Support for Windows, Linux, and macOS.
--   Event-driven API for device attachment, detachment, and tag scanning.
+* Initial release.
