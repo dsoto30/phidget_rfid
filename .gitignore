@@ -1,0 +1,77 @@
+# Miscellaneous
+*.class
+*.lock
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Sensitive files - ALWAYS ignore files with secrets!
+# Add any files that contain API keys or other credentials.
+# For example:
+# /android/key.properties
+# .env
+
+# iOS/macOS
+/ios/Pods/
+/ios/Flutter/App.framework
+/ios/Flutter/engine.xcconfig
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/podfuncs.rb
+/ios/Flutter/flutter_export_environment.sh
+/ios/.symlinks/
+/ios/Runner/Assets.xcassets/AppIcon.appiconset/
+/ios/Runner.xcworkspace/xcshareddata/
+/ios/Runner.xcworkspace/xcuserdata/
+.generated/
+DerivedData/
+*.hmap
+*~.nib/
+
+# Android
+/android/app/src/main/assets/flutter_assets/
+/android/key.properties
+/android/.gradle/
+/android/local.properties
+/android/app/build/
+/android/app/.*
+!/android/app/src/main
+/android/gradlew
+/android/gradlew.bat
+.gradle/
+captures/
+*.jks
+*.keystore
+
+# Web
+/web/build/
+/web/.dart_tool/
+
+# Windows
+/windows/build/
+/windows/flutter/ephemeral
+/windows/.vs/
+
+# Linux
+/linux/build/
+/linux/flutter/ephemeral
