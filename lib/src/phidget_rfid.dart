@@ -16,12 +16,16 @@ sealed class PhidgetEvent {}
 ///
 /// This event indicates that the device has been successfully connected and is
 /// ready to communicate.
-class PhidgetAttachedEvent extends PhidgetEvent {}
+class PhidgetAttachedEvent extends PhidgetEvent {
+  /// Creates an instance of an attached event.
+}
 
 /// Event fired when the Phidget RFID reader is detached.
 ///
 /// This event signals that the device has been disconnected from the system.
-class PhidgetDetachedEvent extends PhidgetEvent {}
+class PhidgetDetachedEvent extends PhidgetEvent {
+  /// Creates an instance of a detached event.
+}
 
 /// Event fired when an RFID tag is scanned.
 ///

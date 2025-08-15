@@ -1,0 +1,11 @@
+# example/pubspec.yaml
+name: phidget_rfid_example
+description: Demonstrates how to use the phidget_rfid package.
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  phidget_rfid:
+    # Update the path to the correct location of the phidget_rfid package
+    path: ../

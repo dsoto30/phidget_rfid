@@ -99,10 +99,190 @@ class _MyHomePageState extends State<MyHomePage> {
               _lastTag = event.tag;
 
             // --- THIS CASE IS UPDATED ---
+            ## Usage
+
+Here is a simple example of how to use the `phidget_rfid` package in a Flutter application. This example also shows how to enable logging to see detailed output from the PhidgetRFID class.
+
+First, add the `logging` package to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  phidget_rfid: ^1.0.0
+  logging: ^1.2.0 # Or the latest version
+```
+
+Then, you can use the following code in your application:
+
+```dart
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:phidget_rfid/phidget_rfid.dart';
+import 'package:logging/logging.dart';
+
+void main() {
+  // Enable logging to see the output from the PhidgetRFID class
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Phidget RFID Reader',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+        useMaterial3: true,
+      ),
+      home: const MyHomePage(title: 'Phidget RFID Reader Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  late PhidgetRFID _phidgetService;
+  StreamSubscription<PhidgetEvent>? _eventSubscription;
+
+  String _status = 'Disconnected';
+  String _lastTag = 'N/A';
+
+  @override
+  void initState() {
+    super.initState();
+    _phidgetService = PhidgetRFID();
+    _connectPhidget();
+  }
+
+  void _connectPhidget() async {
+    setState(() {
+      _status = 'Initializing...';
+      _lastTag = 'N/A';
+    });
+
+    try {
+      await _phidgetService.initialize();
+
+      _eventSubscription = _phidgetService.eventStream.listen((event) {
+        if (!mounted) return;
+        setState(() {
+          switch (event) {
+            case PhidgetAttachedEvent():
+              _status = 'Connected';
+
+            case PhidgetDetachedEvent():
+              _status = 'Disconnected';
+              _lastTag = 'N/A';
+
+            case PhidgetTagScannedEvent():
+              _status = 'Connected';
+              _lastTag = event.tag;
+
+            // --- THIS CASE IS UPDATED ---
             case PhidgetTagLostEvent():
               // When a tag is lost, revert to the connected state and clear the tag.
               _status = 'Connected';
               _lastTag = 'N/A';
+
+            default:
+              _status = 'Unknown Event';
+              print(
+                'Warning: Unhandled PhidgetEvent of type '{$event.runtimeType}' received.',
+              );
+          }
+        });
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _status = 'Error: ${e.toString()}';
+      });
+    }
+  }
+
+  void _disconnectPhidget() {
+    _eventSubscription?.cancel();
+    _phidgetService.dispose();
+
+    _phidgetService = PhidgetRFID();
+
+    setState(() {
+      _status = 'Disconnected';
+      _lastTag = 'N/A';
+    });
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    _phidgetService.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isConnected = _status == 'Connected';
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(widget.title),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              'Status: $_status',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Last Tag Scanned:', // Label is now simplified
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Text(
+              _lastTag,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Colors.teal,
+              ),
+            ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: isConnected ? null : _connectPhidget,
+                  child: const Text('Connect'),
+                ),
+                ElevatedButton(
+                  onPressed:
+                      _status != 'Disconnected' ? _disconnectPhidget : null,
+                  child: const Text('Disconnect'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
 
             default:
               _status = 'Unknown Event';
