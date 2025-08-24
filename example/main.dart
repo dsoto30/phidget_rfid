@@ -1,5 +1,4 @@
 // example/main.dart
-import 'dart:io';
 import 'package:phidget_rfid/phidget_rfid.dart';
 
 void main() async {
@@ -23,8 +22,6 @@ void main() async {
           print('Event: Tag Scanned -> ${event.tag}');
         case PhidgetTagLostEvent():
           print('Event: Tag Lost -> ${event.tag}');
-        default:
-          print('Event: Unknown event received.');
       }
     });
 
