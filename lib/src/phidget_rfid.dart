@@ -3,6 +3,8 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:logging/logging.dart'; // Import the logging package
+import 'dart:typed_data';
+import 'dart:convert';
 
 // --- Define Event Classes for the Stream ---
 
@@ -169,15 +171,39 @@ class PhidgetRFID {
   ///
   /// Throws an [Exception] if the operating system is not supported.
   PhidgetRFID() {
-    // Platform-specific library loading
+    String libraryPath;
+
     if (Platform.isWindows) {
-      _phidgetLibrary = DynamicLibrary.open('phidget22.dll');
-    } else if (Platform.isLinux) {
-      _phidgetLibrary = DynamicLibrary.open('libphidget22.so');
+      libraryPath = 'phidget22.dll';
     } else if (Platform.isMacOS) {
-      _phidgetLibrary = DynamicLibrary.open('libphidget22.dylib');
+      // First, check the standard Framework installation path.
+      // This will work for 99% of users out of the box.
+      const defaultPath = '/Library/Frameworks/Phidget22.framework/Phidget22';
+
+      if (File(defaultPath).existsSync()) {
+        libraryPath = defaultPath;
+      } else {
+        // As a fallback, use a generic name. The README will instruct
+        // users with non-standard installs on how to create a symbolic
+        // link to make this path work.
+        libraryPath = 'libphidget22.dylib';
+      }
     } else {
-      throw Exception('Unsupported platform');
+      throw Exception(
+        'Unsupported platform. This package currently supports Windows and macOS.',
+      );
+    }
+
+    try {
+      _phidgetLibrary = DynamicLibrary.open(libraryPath);
+    } catch (e) {
+      _log.severe(
+        'FATAL: Could not load the Phidget22 library.\n'
+        '1. Ensure the Phidgets driver is installed.\n'
+        '2. On macOS, make sure you have run the `install_name_tool` command from the README.',
+        e,
+      );
+      rethrow; // Rethrow the exception to halt execution.
     }
 
     // Load function pointers from the native library
@@ -220,10 +246,27 @@ class PhidgetRFID {
     Pointer<Utf8> tag,
     int protocol,
   ) {
-    final tagString = tag.toDartString();
-    _log.info('Tag Scanned: $tagString');
-    if (!_eventStreamController.isClosed) {
-      _eventStreamController.add(PhidgetTagScannedEvent(tagString));
+    try {
+      final Pointer<Uint8> bytePointer = tag.cast<Uint8>();
+
+      int length = 0;
+      while (bytePointer[length] != 0) {
+        length++;
+      }
+
+      if (length == 0) return;
+
+      final Uint8List tagBytes = bytePointer.asTypedList(length);
+
+      // Decode the bytes into a string, replacing any malformed sequences.
+      final tagString = utf8.decode(tagBytes, allowMalformed: true);
+
+      _log.info('Tag Scanned: $tagString');
+      if (!_eventStreamController.isClosed) {
+        _eventStreamController.add(PhidgetTagScannedEvent(tagString));
+      }
+    } catch (e, stackTrace) {
+      _log.severe('Error processing tag callback', e, stackTrace);
     }
   }
 
@@ -250,10 +293,27 @@ class PhidgetRFID {
     Pointer<Utf8> tag,
     int protocol,
   ) {
-    final tagString = tag.toDartString();
-    _log.info('Tag Lost: $tagString');
-    if (!_eventStreamController.isClosed) {
-      _eventStreamController.add(PhidgetTagLostEvent(tagString));
+    try {
+      final Pointer<Uint8> bytePointer = tag.cast<Uint8>();
+
+      int length = 0;
+      while (bytePointer[length] != 0) {
+        length++;
+      }
+
+      if (length == 0) return;
+
+      final Uint8List tagBytes = bytePointer.asTypedList(length);
+
+      // Decode the bytes into a string, replacing any malformed sequences.
+      final tagString = utf8.decode(tagBytes, allowMalformed: true);
+
+      _log.info('Tag Lost: $tagString');
+      if (!_eventStreamController.isClosed) {
+        _eventStreamController.add(PhidgetTagLostEvent(tagString));
+      }
+    } catch (e, stackTrace) {
+      _log.severe('Error processing tag lost callback', e, stackTrace);
     }
   }
 

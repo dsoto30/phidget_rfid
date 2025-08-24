@@ -1,16 +1,32 @@
 # Phidget RFID Reader
 
-A Flutter package for interacting with a Phidget RFID reader on Windows, Linux, and macOS. This package uses FFI to communicate with the native `phidget22` library, allowing you to easily integrate Phidget RFID readers into your Flutter applications.
+A Flutter package for interacting with a Phidget RFID reader on Windows and macOS. This package uses FFI to communicate with the native `phidget22` library, allowing you to easily integrate Phidget RFID readers into your Flutter applications.
 
 ## Features
 
--   **Cross-Platform:** Works on Windows, Linux, and macOS.
+-   **Cross-Platform:** Works on Windows and macOS.
 -   **Event-Driven:** Provides a stream of events for device attachment, detachment, and tag scanning.
 -   **Simple API:** Easy to initialize the device and listen for events.
 
 ## Prerequisites
 
 You must have the Phidget22 library installed on your system. You can find the installation instructions for your operating system on the [Phidgets website](https://www.phidgets.com/docs/Operating_System_Support).
+
+### macOS Setup
+
+On macOS, the Phidgets driver is installed as a framework. This package will automatically attempt to locate the library at its standard installation path: `/Library/Frameworks/Phidget22.framework/Phidget22`.
+
+For most users, no additional steps are required.
+
+However, if you have a non-standard installation or if the library cannot be found, you may need to create a symbolic link to help Dart's FFI locate it. You can create a symbolic link in a standard location like `/usr/local/lib`.
+
+Open your terminal and run the following command:
+
+```sh
+sudo ln -s /Library/Frameworks/Phidget22.framework/Phidget22 /usr/local/lib/libphidget22.dylib
+```
+
+This command creates a link named `libphidget22.dylib` that points to the correct Phidgets library, making it discoverable by the package.
 
 ## Installation
 
